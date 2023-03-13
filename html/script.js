@@ -54,7 +54,9 @@ const size = 4;
 const divisions = 4;
 
 // The board
-const board = new Array(size);
+var board = new Array(size);
+
+var number_of_locked = 0;
 
 const init_board = () => {
   for (var i = 0; i < size; i++) {
@@ -63,11 +65,12 @@ const init_board = () => {
       var geometry = new THREE.BoxGeometry(1, .1, 1);
       var cube = new THREE.Mesh(geometry, matFree);
       cube.position.x = -1.5 + i;
-      cube.position.y = -0.1;
+      cube.position.y = 0;
       cube.position.z = -1.5 + j;
       board[i][j] = cube;
       var geo = new THREE.EdgesGeometry(cube.geometry);
       var mat = new THREE.LineBasicMaterial({color: 0x000000 });
+      mat.linewidth = 2;
       var wireframe = new THREE.LineSegments(geo, mat);
       cube.add(wireframe);
       scene.add(cube);
@@ -80,15 +83,13 @@ init_board();
 function boardSwap(x, y) {
     if (board[x][y].material == matLocked) {
         board[x][y].material = matFree;
+        number_of_locked -= 1;
     } else {
         board[x][y].material = matLocked;
+        number_of_locked += 1;
+
     }
 }
-
-boardSwap(0,0);
-boardSwap(1,1);
-boardSwap(2,2);
-
 
 //create renderer
 // const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -101,8 +102,8 @@ renderer.render(scene, camera);
 
 var b = true;
 
-var rx = 1 / 100;
-var rr = Math.PI / 200;
+var rx = 4 * 1 / 100;
+var rr = 4 * Math.PI / 200;
 
 const moveY = () => {
   if ((0.52 <= cube.position.x) || (cube.position.x <= -0.52)) {
@@ -163,18 +164,19 @@ const moveX = () => {
 };
 
 //animation loop
- const animate = () => {
-  requestAnimationFrame(animate);
-  moveY();
-  renderer.render(scene, camera);
-};
+//const animate = () => {
+//  requestAnimationFrame(animate);
+//  moveY();
+//  renderer.render(scene, camera);
+//};
 
-animate();
+// animate();
 
 var mouse = new THREE.Vector2();
 var raycaster = new THREE.Raycaster();
 
 function onDocumentMouseDown(event){
+  if (number_of_locked <= 7) {
     mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
@@ -185,11 +187,17 @@ function onDocumentMouseDown(event){
             for (var j = 0; j < size; j++) {
                 if (selectedPiece == board[i][j]) {
                     boardSwap(i,j);
+                    if (number_of_locked == 7) {
+                      boardSwap(i,j);
+                      cube.position.x = board[i][j].position.x;
+                      cube.position.z = board[i][j].position.z;
+                    }
                     renderer.render(scene, camera);
                 }
             }
         }
     }
+  }
 }
 
  
