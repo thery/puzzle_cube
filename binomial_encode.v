@@ -35,8 +35,6 @@ Compute bin_encode [false; true; true; false] 2.
 Compute bin_encode [false; true; false; true] 2.
 Compute bin_encode [false; false; true; true] 2.
 
-Search int bool.
-  
 Fixpoint bin_decode (m : nat) (n : nat) v : list bool :=
 match m with 
 | S m1 => if (leb (bin_compute m1 n) v) then
@@ -51,3 +49,79 @@ Compute bin_decode 4 2 3%uint63.
 Compute bin_decode 4 2 2%uint63.
 Compute bin_decode 4 2 1%uint63.
 Compute bin_decode 4 2 0%uint63.
+
+(* Rotate 16 bits 90 degres counterclockwise *)
+
+(* b0 b1 b2 b3 *)
+(* b4 b5 b6 b7 *)
+(* b8 b9 bA bB *)
+(* bC bD bE bF *)
+
+(* b3 b7 bB bF *)
+(* b2 b6 bA bE *)
+(* b1 b5 b9 bD *)
+(* b0 b4 b8 bC *)
+
+Definition rotate16_90 (l : list bool) := 
+  match l with 
+  | b0 :: b1 :: b2 :: b3 ::
+    b4 :: b5 :: b6 :: b7 ::
+    b8 :: b9 :: bA :: bB :: 
+    bC :: bD :: bE :: bF :: nil =>
+    b3 :: b7 :: bB :: bF ::
+    b2 :: b6 :: bA :: bE ::
+    b1 :: b5 :: b9 :: bD :: 
+    b0 :: b4 :: b8 :: bC :: nil
+    
+  | _ => l
+  end.
+
+Definition rotate16_180 (l : list bool) := 
+  rotate16_90 (rotate16_90 l).
+
+Definition rotate16_270 (l : list bool) := 
+  rotate16_90 (rotate16_180 l).
+
+Lemma rotate16_360 l :  rotate16_90 (rotate16_270 l) = l.
+Proof. do 17 (destruct l as [|? l]; simpl; auto). Qed.
+
+(* Rotate 6 bits 90 degres counterclockwise *)
+
+(**
+       ---
+       |b3|
+     -------
+    |b1|b0|b4|
+     -------
+       |b2|
+       ---
+       |b5|
+*)
+
+(**
+       ---
+       |b4|
+     -------
+    |b3|b0|b2|
+     -------
+       |b1|
+       ---
+       |b5|
+*)
+
+Definition rotate6_90 (l : list bool) :=
+match l with 
+  b0 :: b1 :: b2 :: b3 :: b4 :: b5 :: nil => 
+  b0 :: b3 :: b1 :: b4 :: b2 :: b5 :: nil
+| _ => l
+end.
+
+Definition rotate6_180 (l : list bool) := 
+  rotate6_90 (rotate6_90 l).
+
+Definition rotate6_270 (l : list bool) := 
+  rotate6_90 (rotate6_180 l).
+
+Lemma rotate6_360 l :  rotate6_90 (rotate6_270 l) = l.
+Proof. do 7 (destruct l as [|? l]; simpl; auto). Qed.
+
