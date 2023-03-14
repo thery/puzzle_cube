@@ -7,9 +7,12 @@ Open Scope uint63_scope.
 Definition size_board := 4.
 Definition nsize_board := 4%nat.
 Definition size_board2 := size_board * size_board.
+Definition nsize_board2 := (nsize_board * nsize_board)%nat.
 
 (* The number of bits for the position *)
 Definition size_position := 4.
+Definition nsize_position := 4%nat.
+
 Definition size_board2_position := size_board2 + size_position.
 
 (* Tne number of bits for the cube *)
