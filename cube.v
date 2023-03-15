@@ -322,6 +322,7 @@ Compute print_board 31.
 
 Time Compute gen_all 15%nat 0 0%nat 16 31.
 (* 2.5 s *)
+(*
 Time Compute gen_all 15%nat 0 1%nat 16 15.
 (* 22 s *)
 Time Compute gen_all 15%nat 0 2%nat 16 7.
@@ -334,3 +335,4 @@ Time Compute gen_all 15%nat 0 5%nat 21 0.
 (* 2939 s *)
 Time Compute gen_all 15%nat 0 5%nat 21 (set_positionXY 0 0 1).
 (* 3594s *)
+*)
