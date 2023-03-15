@@ -13,12 +13,14 @@ camera.position.y = 2;
 camera.position.x = 0;
 
 // Our two colours
-const colorLocked = new THREE.Color( 'skyblue' );
-const colorFree   = new THREE.Color( 'white' );
+const colorFree   = new THREE.Color('white');
+const colorLocked = new THREE.Color('skyblue');
+const colorWon   = new THREE.Color('coral');
 
 // Our two mats 
 const matLocked = new THREE.MeshBasicMaterial({color: colorLocked});
 const matFree   = new THREE.MeshBasicMaterial({color: colorFree});
+const matWon   = new THREE.MeshBasicMaterial({color: colorWon});
 
 // Our six axis 
 const axisPX = new THREE.Vector3( 1, 0, 0);
@@ -57,6 +59,26 @@ cube.position.x = 0.5;
 scene.add(cube);
 cube.visible = false;
 
+var isWon = false; 
+// Check if a cube is all colored 
+function isCubeWon () {
+  for(var i = 0; i < 6; i++) {
+    if (cube.material[i] == matFree) {
+      return false;
+    }
+  }
+  isWon = true;
+  return true;
+}
+
+// Set cube is all colored 
+function setCubeWon () {
+  for(var i = 0; i < 6; i++) {
+    cube.material[i] = matWon;
+  }
+  renderer.render(scene, camera);
+}
+
 // Getting the difference faces of the cube 
 function getFace(ax1) {
   var ax = cube.worldToLocal(ax1).multiplyScalar(2);
@@ -81,9 +103,6 @@ function getFace(ax1) {
   if (ax.equals(axisNZ)) {
     return 5;
   }
-  console.log("getFace " + 
-  cube.position.x + " " + cube.position.y + " " + cube.position.z);
-  console.log(ax.x + " " + ax.y + " " + ax.z);
 }
 function getFaceDown() {
   return getFace(
@@ -109,6 +128,11 @@ function getFaceSouth() {
   return getFace(
     new THREE.Vector3(cube.position.x, cube.position.y, cube.position.z - 0.5));
 };
+
+// Check if a face is selected 
+function isFaceSelected(i) {
+  return (cube.material[i] == matLocked); 
+}
 
 // Round with 2 digits
 function round2(x) {
@@ -199,8 +223,6 @@ function getSquareUnderCube() {
       }
     }
   }
-  console.log("getSquareUnderCube " + 
-  cube.position.x + " " + cube.position.y + " " + cube.position.z);
 }
 
 // Exchange the color of the down face of the cube with the square underneath
@@ -215,11 +237,86 @@ function swapSquareCube() {
   cube.material[face] = mat;
 } 
 
+function resetCubeBoard() {
+  for(var i = 0; i < 6; i++) {
+    cube.material[i] = matFree;
+  }
+  cube.visible = false;
+  isWon = false;
+  for(var i = 0; i < 4; i++) {
+    for (var j = 0; j < 4; j++) {
+      getSquare(i, j).material = matFree;
+    }
+  }
+  numberOfLocked = 0;
+}
+
 //create renderer
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.render(scene, camera);
-  
+
+// Get next move to solve the current position 
+function getNextMove() {
+  var i = 1 + 2 * cube.position.x; 
+  var j = 1 + 2 * cube.position.y;
+  var cubePos = new Array(6);
+  cubePos[0] = isFaceSelected(getFaceDown());
+  cubePos[1] = isFaceSelected(getFaceWest());
+  cubePos[2] = isFaceSelected(getFaceSouth());
+  cubePos[3] = isFaceSelected(getFaceNorth());
+  cubePos[4] = isFaceSelected(getFaceEast());
+  cubePos[5] = isFaceSelected(getFaceTop());
+  var boardPos = new Array(4);
+  for (var i = 0; i < 4; i++) {
+    boardPos[i] = new Array(4);
+  }
+  for (var i = 0; i < 4; i++) {
+    for (var j = 0; j < 4; j++) {
+      boardPos[i][j] = isSquareSelected(i, j);
+    }
+  }
+  // The position is in the lower part of the board, we need to do a 180 degre
+  var swap = (2 <= j);
+  var k = true;
+  if (swap == true) {
+    j = 3 - j;
+    for (var i = 0; i < 4; i++) {
+      for (var j = 0; j < 2; j++) {
+        k = boardPos[i][j];
+        boardPos[i][j] = boardPos[i][3 - j];
+        boardPos[i][3 - j] = k;
+      }
+    } 
+    k = cubePos[1];
+    cubePos[1] = cubePos[4];
+    cubePos[4] = k;
+    k = cubePos[2];
+    cubePos[2] = cubePos[3];
+    cubePos[3] = k;
+  }
+  // The position is in the right part of the board, we need to do a 180 degre
+  var turn = (2 <= i);
+  if (turn == true) {
+    j = 2 - j;
+    for (var i = 0; i < 2; i++) {
+      for (var j = i; j < 3 - i; j++) {
+        k = boardPos[i + j][i];
+        boardPos[i + j][i] = boardPos[3 - i][i + j];
+        boardPos[3 - i][i + j] = boardPos[3 - (i + j)][3 - i];
+        boardPos[3 - (i + j)][3 - i] = boardPos[i][3 - (i + j)];
+        boardPos[i][3 - (i + j)] = k;
+      }
+    } 
+    k = cubePos[1];
+    cubePos[1] = cubePos[3];
+    cubePos[3] = cubePos[4];
+    cubePos[4] = cubePos[2];
+    cubePos[2] = k;
+  }
+
+}
+
 // Animation speed
 var rx = 4 * 1 / 100;
 var rr = 4 * Math.PI / 200;
@@ -237,6 +334,9 @@ function moveXP () {
     rot = 0;
     roundCube();
     swapSquareCube();
+    if (isCubeWon()) {
+      setCubeWon();
+    }
   }
 }
 
@@ -250,6 +350,9 @@ function moveXN () {
     rot = 0;
     roundCube();
     swapSquareCube();
+    if (isCubeWon()) {
+      setCubeWon();
+    }
   }
 };
 
@@ -263,6 +366,9 @@ function moveZP () {
     rot = 0;
     roundCube();
     swapSquareCube();
+    if (isCubeWon()) {
+      setCubeWon();
+    }
   }
 };
 
@@ -276,6 +382,9 @@ function moveZN () {
     rot = 0;
     roundCube();
     swapSquareCube();
+    if (isCubeWon()) {
+      setCubeWon();
+    }
   }
 };
 
@@ -288,7 +397,7 @@ function animate () {
   requestAnimationFrame(animate);
   var x = cube.position.x;
   var z = cube.position.z;
-  if ((gx != x) || (gz != z)) {
+  if (((gx != x) || (gz != z)) && !isWon) {
     if (gx < x) {
       moveXN();
     } else if (gx > x) {
@@ -324,15 +433,12 @@ function getSelectedSquare (raycaster) {
 
 // What happens on mouse down
 function onDocumentMouseDown(event) {
-console.log( "cube = " + 
-  getFaceDown() + " " + 
-  getFaceUp() + " " + 
-  getFaceWest() + " " + 
-  getFaceEast() + " " + 
-  getFaceNorth() + " " + 
-  getFaceSouth());
-
   if ((gx != cube.position.x) || (gz != cube.position.z)) {
+    return;
+  }
+  if (isWon) {
+    resetCubeBoard();
+    renderer.render(scene, camera);
     return;
   }
   mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
