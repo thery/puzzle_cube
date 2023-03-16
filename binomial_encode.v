@@ -1,4 +1,4 @@
-Require Import Uint63 List.
+Require Import cube_explore Uint63 List.
 Import ListNotations.
 
 (* Compute C(m, n) *)
@@ -143,7 +143,7 @@ Definition is_lower_right (xy : nat * nat) :=
   (negb (Nat.leb (fst xy) 3) && negb (Nat.leb (snd xy) 3))%bool.
 
 Definition rotatepos_90 (xy : nat * nat) := 
-  (snd xy, 7 - fst xy).
+  (snd xy, (7 - fst xy)%nat).
 
 Definition rotatepos_180 (xy : nat * nat) := 
   rotatepos_90 (rotatepos_90 xy).
@@ -227,7 +227,7 @@ Compute print_state (mk_state 0 0).
 Compute print_state (mk_state 15 0).
 Compute bin_compute 22 6.
 (* Full board position (0, 0) *)
-Compute print_state (mk_state 0 74613).
+Compute print_state (mk_state 0 2).
 
 (* Function that takes a state and return a direction *)
 Definition get_direction (state : int) : int := 3%uint63.
@@ -237,8 +237,14 @@ Definition ul_to_full (p : int) :=
   if (p =? 2)%uint63 then 4%uint63 else
   if (p =? 3)%uint63 then 5%uint63 else p.
 
+Compute array_find big_array' 252.
+
 (* Function that get the direction from a state *)
-Definition get_dir (s : int) := 3%uint63 (* right *).
+Definition get_dir (s : int) := 
+  match array_find big_array' s with
+  | Some x => x - 1
+  | _ => 0
+  end. 
 
 From Bignums Require Import BigN.
 Require Import ZArith.
@@ -255,7 +261,7 @@ Definition add_all_pos_state nbin res :=
 let res1 := add_state 0 nbin res in
 let res2 := add_state 1 nbin res1 in
 let res3 := add_state 2 nbin res2 in
-let res4 := add_state 3 nbin res3 in res3.
+let res4 := add_state 3 nbin res3 in res4.
 
 Fixpoint iter_add_state n nbin res := 
   let res1 := add_all_pos_state nbin res in 
@@ -263,9 +269,7 @@ Fixpoint iter_add_state n nbin res :=
 
 Compute bin_compute 22 6.
 (* 74613 *)
-Definition mk_big_number := iter_add_state 1000 0 0.
-
-Time Compute mk_big_number.
+Time Definition mk_big_number := Eval vm_compute in iter_add_state 74612 0 0.
 
 Definition bigN_to_int (z : bigN) := (of_Z (BigN.to_Z z)).
 
