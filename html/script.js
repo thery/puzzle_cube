@@ -274,7 +274,7 @@ var voidTxt ;
 var currentTxt;
 
 var loader = new THREE.FontLoader();
-loader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/helvetiker_bold.typeface.json', function(font) {
+loader.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', function(font) {
   var textmat = new THREE.MeshBasicMaterial({
     color: 'white'
   });
