@@ -3,7 +3,7 @@ var debug = false;
 
 //create the scene
 const scene = new THREE.Scene();
-
+scene.background = new THREE.Color('gray');
 
 //create the camera
 const camera = new THREE.PerspectiveCamera(
@@ -280,14 +280,14 @@ loader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/f
   });
   var geometry = new THREE.TextGeometry('', {
     font: font,
-    size: 0.25,
-    height: 0.025,
-    curveSegments: 12,
+    size: 0.3,
+    height: 0.,
+    curveSegments: 1,
     bevelEnabled: true,
-    bevelThickness: 0.0125,
-    bevelSize: 0.00625,
+    bevelThickness: 0,
+    bevelSize: 0,
     bevelOffset: 0,
-    bevelSegments: 5
+    bevelSegments: 1
   });
   geometry.center();
   voidTxt = new THREE.Mesh(geometry, textmat);
@@ -296,13 +296,13 @@ loader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/f
   geometry = new THREE.TextGeometry('left', {
     font: font,
     size: 0.3,
-    height: 0.03,
-    curveSegments: 12,
+    height: 0.,
+    curveSegments: 1,
     bevelEnabled: true,
-    bevelThickness: 0.01,
-    bevelSize: 0.005,
+    bevelThickness: 0,
+    bevelSize: 0,
     bevelOffset: 0,
-    bevelSegments: 5
+    bevelSegments: 1
   });
   geometry.center();
   leftTxt = new THREE.Mesh(geometry, textmat);
@@ -310,14 +310,14 @@ loader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/f
   leftTxt.position.y = -0.5;
   geometry = new THREE.TextGeometry('right', {
     font: font,
-    size: 0.25,
-    height: 0.025,
-    curveSegments: 12,
+    size: 0.3,
+    height: 0.,
+    curveSegments: 1,
     bevelEnabled: true,
-    bevelThickness: 0.0125,
-    bevelSize: 0.00625,
+    bevelThickness: 0,
+    bevelSize: 0,
     bevelOffset: 0,
-    bevelSegments: 5
+    bevelSegments: 1
   });
   geometry.center();
   rightTxt = new THREE.Mesh(geometry, textmat);
@@ -325,14 +325,14 @@ loader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/f
   rightTxt.position.y = -0.5;
   geometry = new THREE.TextGeometry('up', {
     font: font,
-    size: 0.25,
-    height: 0.025,
-    curveSegments: 12,
+    size: 0.3,
+    height: 0.,
+    curveSegments: 1,
     bevelEnabled: true,
-    bevelThickness: 0.0125,
-    bevelSize: 0.00625,
+    bevelThickness: 0,
+    bevelSize: 0,
     bevelOffset: 0,
-    bevelSegments: 5
+    bevelSegments: 1
   });
   geometry.center();
   upTxt = new THREE.Mesh(geometry, textmat);
@@ -709,6 +709,20 @@ function onDocumentMouseDown(event) {
 
 document.body.appendChild(renderer.domElement);
 window.addEventListener('click', onDocumentMouseDown, false);
+
+	
+window.addEventListener(
+  'resize',
+  
+    function () {
+      var width = window.innerWidth;
+	    var height = window.innerHeight;
+	    renderer.setSize( width, height );
+	    camera.aspect = width / height;
+	    camera.updateProjectionMatrix();
+      renderer.render(scene, camera);
+    }
+  );
 
 animate();
 
