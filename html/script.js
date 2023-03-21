@@ -20,11 +20,13 @@ camera.position.x = 0;
 const colorFree   = new THREE.Color('white');
 const colorLocked = new THREE.Color('skyblue');
 const colorWon   = new THREE.Color('coral');
+const colorBlackBoard   = new THREE.Color('black');
 
 // Our two mats 
 const matLocked = new THREE.MeshBasicMaterial({color: colorLocked});
 const matFree   = new THREE.MeshBasicMaterial({color: colorFree});
 const matWon   = new THREE.MeshBasicMaterial({color: colorWon});
+const matBlackBoard   = new THREE.MeshBasicMaterial({color: colorBlackBoard});
 
 // Our six axis 
 const axisPX = new THREE.Vector3( 1, 0, 0);
@@ -34,8 +36,19 @@ const axisNY = new THREE.Vector3( 0,-1, 0);
 const axisPZ = new THREE.Vector3( 0, 0, 1);
 const axisNZ = new THREE.Vector3( 0, 0,-1);
 
+// create the black board 
+const bbgeometry = new THREE.BoxGeometry(4, 0.5, 0.1);
+const bbcube = new THREE.Mesh(bbgeometry, matBlackBoard);
+
 // create the main cube
 const geometry = new THREE.BoxGeometry(1, 1, 1);
+// The initial position
+bbcube.position.z = 1.7;
+bbcube.position.y = -0.6;
+bbcube.position.x = 0;
+
+//add the main blackboard to scene
+scene.add(bbcube);
 
 // The six materials
 var material = [
@@ -85,6 +98,11 @@ function setCubeWon () {
   }
   currentTxt = voidTxt;
   scene.add(currentTxt);
+  if (currentDistTxt) {
+    scene.remove(currentDistTxt);
+  }
+  currentDistTxt = distTxt[0];
+  scene.add(currentDistTxt);
   renderer.render(scene, camera);
 }
 
@@ -271,7 +289,10 @@ var leftTxt ;
 var upTxt ;
 var dowwnTxt ;
 var voidTxt ;
-var currentTxt;
+var visibleCurrentTxt = true;
+var distTxt = new Array(20);
+var currentDistTxt;
+var visibleCurrentDistTxt = true;
 
 var loader = new THREE.FontLoader();
 loader.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', function(font) {
@@ -291,8 +312,9 @@ loader.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', 
   });
   geometry.center();
   voidTxt = new THREE.Mesh(geometry, textmat);
+  voidTxt.position.x = 1;
   voidTxt.position.z = 2;
-  voidTxt.position.y = -0.5;
+  voidTxt.position.y = -0.40;
   geometry = new THREE.TextGeometry('left', {
     font: font,
     size: 0.3,
@@ -306,8 +328,9 @@ loader.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', 
   });
   geometry.center();
   leftTxt = new THREE.Mesh(geometry, textmat);
+  leftTxt.position.x = 1;
   leftTxt.position.z = 2;
-  leftTxt.position.y = -0.5;
+  leftTxt.position.y = -0.34;
   geometry = new THREE.TextGeometry('right', {
     font: font,
     size: 0.3,
@@ -321,8 +344,9 @@ loader.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', 
   });
   geometry.center();
   rightTxt = new THREE.Mesh(geometry, textmat);
+  rightTxt.position.x = 1;
   rightTxt.position.z = 2;
-  rightTxt.position.y = -0.5;
+  rightTxt.position.y = -0.40;
   geometry = new THREE.TextGeometry('up', {
     font: font,
     size: 0.3,
@@ -336,24 +360,49 @@ loader.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', 
   });
   geometry.center();
   upTxt = new THREE.Mesh(geometry, textmat);
+  upTxt.position.x = 1;
   upTxt.position.z = 2;
-  upTxt.position.y = -0.5;
+  upTxt.position.y = -0.42;
   geometry = new THREE.TextGeometry('down', {
     font: font,
-    size: 0.25,
-    height: 0.025,
-    curveSegments: 12,
+    size: 0.3,
+    height: 0.,
+    curveSegments: 1,
     bevelEnabled: true,
-    bevelThickness: 0.0125,
-    bevelSize: 0.00625,
+    bevelThickness: 0,
+    bevelSize: 0,
     bevelOffset: 0,
-    bevelSegments: 5
+    bevelSegments: 1
   });
   geometry.center();
   downTxt = new THREE.Mesh(geometry, textmat);
+  downTxt.position.x = 1;
   downTxt.position.z = 2;
-  downTxt.position.y = -0.5;
+  downTxt.position.y = -0.35;
   currentTxt = voidTxt;
+  var dTxt = "";
+  for (var i = 0; i < 20; i++) {
+    if (i != 0) {
+      dTxt = i + "";
+    }
+    geometry = new THREE.TextGeometry(dTxt, {
+      font: font,
+      size: 0.3,
+      height: 0.,
+      curveSegments: 1,
+      bevelEnabled: true,
+      bevelThickness: 0,
+      bevelSize: 0,
+      bevelOffset: 0,
+      bevelSegments: 1
+    });
+    geometry.center();
+    var txt = new THREE.Mesh(geometry, textmat);
+    distTxt[i] = txt;
+    txt.position.x = -1;
+    txt.position.z = 2;
+    txt.position.y = -0.35;
+  }
 });
 
 function binomial(m, n) {
@@ -489,6 +538,7 @@ function getNextMove() {
     console.log("numberbits = " + printNumberbit());
   }
   var code = xi + 2 * xj + 4 * getCode(0, 6);
+  console.log("getNextMove code " + xi + " "  + xj + " " + getCode(0, 6));
   var val = Number((table >> (2n * BigInt(code))) %4n);
   if (debug) {
     console.log("initial val = " + val);
@@ -510,6 +560,7 @@ function getNextMove() {
       scene.remove(currentTxt);
     }
     currentTxt = upTxt;
+    currentTxt.visible = visibleCurrentTxt;
     scene.add(currentTxt);
     renderer.render(scene, camera);
     return "up";
@@ -519,6 +570,7 @@ function getNextMove() {
       scene.remove(currentTxt);
     }
     currentTxt = rightTxt;
+    currentTxt.visible = visibleCurrentTxt;
     scene.add(currentTxt);
     renderer.render(scene, camera);
     return "right";
@@ -528,6 +580,7 @@ function getNextMove() {
       scene.remove(currentTxt);
     }
     currentTxt = downTxt;
+    currentTxt.visible = visibleCurrentTxt;
     scene.add(currentTxt);
     renderer.render(scene, camera);
     return "down";
@@ -536,9 +589,208 @@ function getNextMove() {
     scene.remove(currentTxt);
   }
   currentTxt = leftTxt;
+  currentTxt.visible = visibleCurrentTxt;
   scene.add(currentTxt);
   renderer.render(scene, camera);
   return "left";
+}
+
+// Get next move to solve the current position 
+function getDistanceToSolution() {
+  var xi = 1.5 + cube.position.x; 
+  var xj = 1.5 + cube.position.z;
+  if (debug) {
+    console.log("initial xi = " + xi);
+    console.log("initial xj = " + xj);
+  }
+  var cubePos = new Array(6);
+  cubePos[0] = isFaceSelected(getFaceDown());
+  cubePos[1] = isFaceSelected(getFaceWest());
+  cubePos[2] = isFaceSelected(getFaceSouth());
+  cubePos[3] = isFaceSelected(getFaceNorth());
+  cubePos[4] = isFaceSelected(getFaceEast());
+  cubePos[5] = isFaceSelected(getFaceUp());
+  var boardPos = new Array(4);
+  for (var i = 0; i < 4; i++) {
+    boardPos[i] = new Array(4);
+  }
+  for (var i = 0; i < 4; i++) {
+    for (var j = 0; j < 4; j++) {
+      boardPos[i][j] = isSquareSelected(i, j);
+    }
+  }
+  var distance = 0;
+  while (distance < 20) {
+    var isWon = true;
+    for (var i = 0; i < 6; i++) {
+      if (!cubePos[i]) {
+        isWon = false;
+      }
+    }
+    if (isWon) {
+      if (currentDistTxt) {
+        scene.remove(currentDistTxt);  
+      }
+      currentDistTxt = distTxt[distance];
+      currentDistTxt.visible = visibleCurrentDistTxt;
+      scene.add(currentDistTxt);
+      renderer.render(scene, camera);
+      return distance;
+    }
+    distance++;
+    // The position is in the lower part of the board, we need to do a 180 degre
+    var swap = (2 <= xj);
+    if (debug) {
+      console.log("swap = " + swap);
+    }
+    var kb = true;
+    var k = 0;
+    if (swap) {
+      xi = 3 - xi;
+      xj = 3 - xj;
+      if (debug) {
+        console.log("swap xi = " + xi);
+        console.log("swap xj = " + xj);
+      }
+      for (var i = 0; i < 4; i++) {
+        for (var j = 0; j < 2; j++) {
+         kb = boardPos[i][j];
+         boardPos[i][j] = boardPos[3 - i][3 - j];
+         boardPos[3 - i][3 - j] = kb;
+        }
+      } 
+      kb = cubePos[1];
+      cubePos[1] = cubePos[4];
+      cubePos[4] = kb;
+      kb = cubePos[2];
+      cubePos[2] = cubePos[3];
+      cubePos[3] = kb;
+    }
+    // The position is in the right part of the board, we need to do a 90 degre
+    var turn = (2 <= xi);
+    if (turn) {
+      k = xi;
+      xi = xj;
+      xj = 3 - k;
+      if (debug) {
+        console.log("turn xi = " + xi);
+        console.log("turn xj = " + xj);
+      }
+      for (var i = 0; i < 2; i++) {
+        for (var j = i; j < 3 - i; j++) {
+          kb = boardPos[i + j][i];
+          boardPos[i + j][i] = boardPos[3 - i][i + j];
+          boardPos[3 - i][i + j] = boardPos[3 - (i + j)][3 - i];
+          boardPos[3 - (i + j)][3 - i] = boardPos[i][3 - (i + j)];
+          boardPos[i][3 - (i + j)] = kb;
+        }
+      } 
+      kb = cubePos[1];
+      cubePos[1] = cubePos[3];
+      cubePos[3] = cubePos[4];
+      cubePos[4] = cubePos[2];
+      cubePos[2] = kb;
+    }
+    if (debug) {
+      console.log("swap=" + swap);
+      console.log("turn=" + turn);
+    }
+    k = 0;
+    for(var i = 0; i < 4; i++) {
+      for (var j = 0 ; j < 4; j++) {
+        numberbit[k++] = boardPos[j][i];
+      }
+    }
+    for(var i = 0; i < 6; i++) {
+      numberbit[k++] = cubePos[5 - i];
+    }
+    if (debug) {
+      console.log("xi = " + xi);
+      console.log("xj = " + xj);
+      console.log("numberbits = " + printNumberbit());
+    }
+    var code = xi + 2 * xj + 4 * getCode(0, 6);
+    console.log("code " + distance + 
+" " + xi + " "  + xj + getCode(0, 6));
+
+    var val = Number((table >> (2n * BigInt(code))) %4n);
+    if (debug) {
+      console.log("initial val = " + val);
+    }
+    if (val == 0) {
+      // cube move to up
+      var c0 = cubePos[0];
+      var c1 = cubePos[1];
+      var c2 = cubePos[2];
+      var c3 = cubePos[3];
+      var c4 = cubePos[4];
+      var c5 = cubePos[5];
+      cubePos[0] = c3;
+      cubePos[1] = c1;
+      cubePos[2] = c0;
+      cubePos[3] = c5;
+      cubePos[4] = c4;
+      cubePos[5] = c2;
+      xj -= 1;
+      var val = boardPos[xi][xj];
+      boardPos[xi][xj] = cubePos[0];
+      cubePos[0] = val;
+    } else if (val == 1) {
+      // cube move to right
+      var c0 = cubePos[0];
+      var c1 = cubePos[1];
+      var c2 = cubePos[2];
+      var c3 = cubePos[3];
+      var c4 = cubePos[4];
+      var c5 = cubePos[5];
+      cubePos[0] = c4;
+      cubePos[1] = c0;
+      cubePos[2] = c2;
+      cubePos[3] = c3;
+      cubePos[4] = c5;
+      cubePos[5] = c1;
+      xi += 1;
+      var val = boardPos[xi][xj];
+      boardPos[xi][xj] = cubePos[0];
+      cubePos[0] = val;
+    } else if (val == 2) {
+      // cube move to down
+      var c0 = cubePos[0];
+      var c1 = cubePos[1];
+      var c2 = cubePos[2];
+      var c3 = cubePos[3];
+      var c4 = cubePos[4];
+      var c5 = cubePos[5];
+      cubePos[0] = c2;
+      cubePos[1] = c1;
+      cubePos[2] = c5;
+      cubePos[3] = c0;
+      cubePos[4] = c4;
+      cubePos[5] = c3;
+      xj += 1;
+      var val = boardPos[xi][xj];
+      boardPos[xi][xj] = cubePos[0];
+      cubePos[0] = val;
+    } else if (val == 3) {
+      // cube move to left
+      var c0 = cubePos[0];
+      var c1 = cubePos[1];
+      var c2 = cubePos[2];
+      var c3 = cubePos[3];
+      var c4 = cubePos[4];
+      var c5 = cubePos[5];
+      cubePos[0] = c1;
+      cubePos[1] = c5;
+      cubePos[2] = c2;
+      cubePos[3] = c3;
+      cubePos[4] = c0;
+      cubePos[5] = c4;
+      xi -= 1;
+      var val = boardPos[xi][xj];
+      boardPos[xi][xj] = cubePos[0];
+      cubePos[0] = val;
+    }
+  }
 }
 
 // Animation speed
@@ -563,6 +815,7 @@ function moveXP () {
       return;
     }
     console.log("next move = " + getNextMove());
+    console.log("distance = " + getDistanceToSolution());
   }
 }
 
@@ -581,6 +834,7 @@ function moveXN () {
       return;
     }
     console.log("next move = " + getNextMove());
+    console.log("distance = " + getDistanceToSolution());
   }
 };
 
@@ -599,6 +853,7 @@ function moveZP () {
       return;
     }
     console.log("next move = " + getNextMove());
+    console.log("distance = " + getDistanceToSolution());
   }
 };
 
@@ -617,6 +872,7 @@ function moveZN () {
       return;
     }
     console.log("next move = " + getNextMove());
+    console.log("distance = " + getDistanceToSolution());
   }
 };
 
@@ -663,6 +919,18 @@ function getSelectedSquare (raycaster) {
   return null;
 }
 
+// get the square that is touched by the ray
+function clickOnBlackBoard (raycaster) {
+  let intersects = raycaster.intersectObjects(scene.children);
+  for (var z = 0; z < intersects.length; z++) {
+        selectedPiece = intersects[z].object;
+        if (selectedPiece == bbcube) {
+          return true;
+        }
+  }
+  return false;
+}
+
 // What happens on mouse down
 function onDocumentMouseDown(event) {
   if ((gx != cube.position.x) || (gz != cube.position.z)) {
@@ -673,7 +941,14 @@ function onDocumentMouseDown(event) {
       scene.remove(currentTxt);
     }
     currentTxt = voidTxt;
+    currentTxt.visible = visibleCurrentTxt;
     scene.add(currentTxt);
+    if (currentDistTxt) {
+      scene.remove(currentDistTxt);
+    }
+    currentDistTxt = distTxt[0];
+    currentDistTxt.visible = visibleCurrentDistTxt
+    scene.add(currentDistTxt);
     resetCubeBoard();
     renderer.render(scene, camera);
     return;
@@ -701,9 +976,36 @@ function onDocumentMouseDown(event) {
         gx = square.position.x;
         gz = square.position.z;
         console.log("next move = " + getNextMove());
+        console.log("distance = " + getDistanceToSolution());
       }
     }
     renderer.render(scene, camera);
+  }
+  if (clickOnBlackBoard(raycaster)) {
+    if (visibleCurrentTxt) {
+      if (visibleCurrentDistTxt) {
+        visibleCurrentTxt = false;
+        visibleCurrentDistTxt = false;
+      } else {
+        visibleCurrentDistTxt = true;
+      }
+    } else if (visibleCurrentDistTxt) {
+      visibleCurrentTxt = true;
+      visibleCurrentDistTxt = false;
+    } else {
+      visibleCurrentTxt = false;
+      visibleCurrentDistTxt = true;
+    }
+    if (currentTxt) {
+      console.log("Changing VC");
+      currentTxt.visible = visibleCurrentTxt;
+    }
+    if (currentDistTxt) {
+      currentDistTxt.visible = visibleCurrentDistTxt;
+      console.log("Changing VD");
+    }
+    renderer.render(scene, camera);
+    console.log("Click");  
   }
 }
 
