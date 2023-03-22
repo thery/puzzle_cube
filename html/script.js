@@ -14,23 +14,26 @@ const camera = new THREE.PerspectiveCamera(
   90,
   window.innerWidth / window.innerHeight,
   0.1,
-  500
+  10
 );
-camera.position.z = 5;
+camera.position.z = 7;
 camera.position.y = 2;
 camera.position.x = 0;
-
+camera.zoom = 1.9;
+camera.updateProjectionMatrix();
 // Our two colours
 const colorFree   = new THREE.Color('white');
 const colorLocked = new THREE.Color('skyblue');
 const colorWon   = new THREE.Color('coral');
 const colorBlackBoard   = new THREE.Color('black');
+const colorMoveBoard   = new THREE.Color('black');
 
 // Our two mats 
 const matLocked = new THREE.MeshBasicMaterial({color: colorLocked});
 const matFree   = new THREE.MeshBasicMaterial({color: colorFree});
 const matWon   = new THREE.MeshBasicMaterial({color: colorWon});
 const matBlackBoard   = new THREE.MeshBasicMaterial({color: colorBlackBoard});
+const matMoveBoard   = new THREE.MeshBasicMaterial({color: colorMoveBoard});
 
 // Our six axis 
 const axisPX = new THREE.Vector3( 1, 0, 0);
@@ -40,6 +43,18 @@ const axisNY = new THREE.Vector3( 0,-1, 0);
 const axisPZ = new THREE.Vector3( 0, 0, 1);
 const axisNZ = new THREE.Vector3( 0, 0,-1);
 
+// create the move board 
+const mbgeometry = new THREE.BoxGeometry(0.6, 0.45, 0.1);
+const mbcube = new THREE.Mesh(mbgeometry, matMoveBoard);
+
+// The initial position
+mbcube.position.z = 1.7;
+mbcube.position.y = -0.5;
+mbcube.position.x = -1.1;
+
+//add the main blackboard to scene
+scene.add(mbcube);
+
 // create the black board 
 const bbgeometry = new THREE.BoxGeometry(4, 0.5, 0.1);
 const bbcube = new THREE.Mesh(bbgeometry, matBlackBoard);
@@ -48,7 +63,7 @@ const bbcube = new THREE.Mesh(bbgeometry, matBlackBoard);
 const geometry = new THREE.BoxGeometry(1, 1, 1);
 // The initial position
 bbcube.position.z = 1.7;
-bbcube.position.y = -0.6;
+bbcube.position.y = -0.5;
 bbcube.position.x = 0;
 
 //add the main blackboard to scene
@@ -135,6 +150,7 @@ function getFace(ax1) {
     return 5;
   }
 }
+
 function getFaceDown() {
   return getFace(
     new THREE.Vector3(cube.position.x, cube.position.y - 0.5, cube.position.z));
@@ -288,6 +304,10 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.render(scene, camera);
 
+var nmove;
+var nmoveTxt ;
+var forward = true;
+var history = [];
 var rightTxt ;
 var leftTxt ;
 var upTxt ;
@@ -300,10 +320,12 @@ let currentDistTxt;
 var visibleCurrentDistTxt = true;
 
 var loader = new FontLoader();
+var xfont;
 loader.load('fonts/helvetiker_bold.typeface.json', function(font) {
   let textmat = new THREE.MeshBasicMaterial({
     color: 'white'
   });
+  xfont = font;
   let geometry = new TextGeometry('', {
     font: font,
     size: 0.3,
@@ -317,7 +339,7 @@ loader.load('fonts/helvetiker_bold.typeface.json', function(font) {
   });
   geometry.center();
   voidTxt = new THREE.Mesh(geometry, textmat);
-  voidTxt.position.x = 1;
+  voidTxt.position.x = 0;
   voidTxt.position.z = 2;
   voidTxt.position.y = -0.40;
   geometry = new TextGeometry('left', {
@@ -333,7 +355,7 @@ loader.load('fonts/helvetiker_bold.typeface.json', function(font) {
   });
   geometry.center();
   leftTxt = new THREE.Mesh(geometry, textmat);
-  leftTxt.position.x = 1;
+  leftTxt.position.x = 0;
   leftTxt.position.z = 2;
   leftTxt.position.y = -0.34;
   geometry = new TextGeometry('right', {
@@ -349,7 +371,7 @@ loader.load('fonts/helvetiker_bold.typeface.json', function(font) {
   });
   geometry.center();
   rightTxt = new THREE.Mesh(geometry, textmat);
-  rightTxt.position.x = 1;
+  rightTxt.position.x = 0;
   rightTxt.position.z = 2;
   rightTxt.position.y = -0.40;
   geometry = new TextGeometry('up', {
@@ -365,7 +387,7 @@ loader.load('fonts/helvetiker_bold.typeface.json', function(font) {
   });
   geometry.center();
   upTxt = new THREE.Mesh(geometry, textmat);
-  upTxt.position.x = 1;
+  upTxt.position.x = 0;
   upTxt.position.z = 2;
   upTxt.position.y = -0.42;
   geometry = new TextGeometry('down', {
@@ -380,10 +402,8 @@ loader.load('fonts/helvetiker_bold.typeface.json', function(font) {
     bevelSegments: 1
   });
   geometry.center();
-  console.log("geometry " + geometry);
-  console.log("textmat " + textmat);
   downTxt = new THREE.Mesh(geometry, textmat);
-  downTxt.position.x = 1;
+  downTxt.position.x = 0;
   downTxt.position.z = 2;
   downTxt.position.y = -0.35;
   currentTxt = voidTxt;
@@ -406,11 +426,42 @@ loader.load('fonts/helvetiker_bold.typeface.json', function(font) {
     geometry.center();
     let txt = new THREE.Mesh(geometry, textmat);
     distTxt[i] = txt;
-    txt.position.x = -1;
+    txt.position.x = 1;
     txt.position.z = 2;
     txt.position.y = -0.35;
   }
 });
+
+function addNMove() {
+  if (98 < nmove) {
+    return;
+  }
+  if (nmoveTxt != null) {
+    scene.remove(nmoveTxt);
+  }
+  nmove++;
+  history.push({x : cube.position.x, z : cube.position.z});
+  let textmat = new THREE.MeshBasicMaterial({
+    color: 'white'
+  });
+  let geometry = new TextGeometry("" + nmove, {
+    font: xfont,
+    size: 0.3,
+    height: 0.,
+    curveSegments: 1,
+    bevelEnabled: true,
+    bevelThickness: 0,
+    bevelSize: 0,
+    bevelOffset: 0,
+    bevelSegments: 1
+  });
+  geometry.center();
+  nmoveTxt = new THREE.Mesh(geometry, textmat);
+  nmoveTxt.position.x = -1;
+  nmoveTxt.position.z = 2;
+  nmoveTxt.position.y = -0.35;
+  scene.add(nmoveTxt);
+}
 
 function binomial(m, n) {
   if (n == 0) {
@@ -812,13 +863,18 @@ function moveXP () {
   if (cube.position.y == 0.5) {
     rot = 0;
     roundCube();
-    swapSquareCube();
+    if (forward) {
+      swapSquareCube();
+    } else {
+      forward = true;
+    }
+    addNMove();
     if (isCubeWon()) {
       setCubeWon();
       return;
     }
-    console.log("next move = " + getNextMove());
-    console.log("distance = " + getDistanceToSolution());
+    getNextMove();
+    getDistanceToSolution();
   }
 }
 
@@ -831,13 +887,18 @@ function moveXN () {
   if (cube.position.y == 0.5) {
     rot = 0;
     roundCube();
-    swapSquareCube();
+    if (forward) {
+      swapSquareCube();
+    } else {
+      forward = true;
+    }
+    addNMove();
     if (isCubeWon()) {
       setCubeWon();
       return;
     }
-    console.log("next move = " + getNextMove());
-    console.log("distance = " + getDistanceToSolution());
+    getNextMove();
+    getDistanceToSolution();
   }
 };
 
@@ -850,13 +911,18 @@ function moveZP () {
   if (cube.position.y == 0.5) {
     rot = 0;
     roundCube();
-    swapSquareCube();
+    if (forward) {
+      swapSquareCube();
+    } else {
+      forward = true;
+    }
+    addNMove();
     if (isCubeWon()) {
       setCubeWon();
       return;
     }
-    console.log("next move = " + getNextMove());
-    console.log("distance = " + getDistanceToSolution());
+    getNextMove();
+    getDistanceToSolution();
   }
 };
 
@@ -869,13 +935,18 @@ function moveZN () {
   if (cube.position.y == 0.5) {
     rot = 0;
     roundCube();
-    swapSquareCube();
+    if (forward) {
+      swapSquareCube();
+    } else {
+      forward = true;
+    }
+    addNMove();
     if (isCubeWon()) {
       setCubeWon();
       return;
     }
-    console.log("next move = " + getNextMove());
-    console.log("distance = " + getDistanceToSolution());
+    getNextMove();
+    getDistanceToSolution();
   }
 };
 
@@ -923,6 +994,19 @@ function getSelectedSquare (raycaster) {
   return null;
 }
 
+// check if we press on the number of move
+function clickOnNMove (raycaster) {
+  let intersects = raycaster.intersectObjects(scene.children);
+  let selectedPiece;
+  for (let z = 0; z < intersects.length; z++) {
+        selectedPiece = intersects[z].object;
+        if (selectedPiece == mbcube) {
+          return true;
+        }
+  }
+  return false;
+}
+
 // get the square that is touched by the ray
 function clickOnBlackBoard (raycaster) {
   let intersects = raycaster.intersectObjects(scene.children);
@@ -955,6 +1039,9 @@ function onDocumentMouseDown(event) {
     currentDistTxt.visible = visibleCurrentDistTxt
     scene.add(currentDistTxt);
     resetCubeBoard();
+    if (nmove != null) {
+      scene.remove(nmoveTxt);
+    }
     renderer.render(scene, camera);
     return;
   }
@@ -980,13 +1067,28 @@ function onDocumentMouseDown(event) {
         cube.position.z = square.position.z;
         gx = square.position.x;
         gz = square.position.z;
-        console.log("next move = " + getNextMove());
-        console.log("distance = " + getDistanceToSolution());
+        nmove = -1;
+        addNMove();
+        getNextMove();
+        getDistanceToSolution();
       }
     }
     renderer.render(scene, camera);
   }
-  if (clickOnBlackBoard(raycaster)) {
+  if (clickOnNMove(raycaster)) {
+    if (nmove < 1) {
+      return;
+    }
+    history.pop();
+    let val = history.pop();
+    nmove--;
+    nmove--;
+    gx = val.x;
+    gz = val.z;
+    forward = false;
+    swapSquareCube();
+    return;
+  } else if (clickOnBlackBoard(raycaster)) {
     if (visibleCurrentTxt) {
       if (visibleCurrentDistTxt) {
         visibleCurrentTxt = false;
@@ -1002,15 +1104,12 @@ function onDocumentMouseDown(event) {
       visibleCurrentDistTxt = true;
     }
     if (currentTxt) {
-      console.log("Changing VC");
       currentTxt.visible = visibleCurrentTxt;
     }
     if (currentDistTxt) {
       currentDistTxt.visible = visibleCurrentDistTxt;
-      console.log("Changing VD");
     }
     renderer.render(scene, camera);
-    console.log("Click");  
   }
 }
 

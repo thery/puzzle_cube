@@ -318,6 +318,8 @@ Fixpoint gen_all n p m k s :=
             end else gen_all n1 (p + 1) m k s
    end.
 
+Compute print_state 252.
+Compute get_board 252.
 Compute print_board 31.
 
 Time Compute gen_all 15%nat 0 0%nat 16 31.
