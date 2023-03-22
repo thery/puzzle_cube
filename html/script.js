@@ -1,3 +1,7 @@
+import * as THREE from 'three';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+
 //debug 
 var debug = false;
 
@@ -79,7 +83,7 @@ cube.visible = false;
 var isWon = false; 
 // Check if a cube is all colored 
 function isCubeWon () {
-  for(var i = 0; i < 6; i++) {
+  for(let i = 0; i < 6; i++) {
     if (cube.material[i] == matFree) {
       return false;
     }
@@ -90,7 +94,7 @@ function isCubeWon () {
 
 // Set cube is all colored 
 function setCubeWon () {
-  for(var i = 0; i < 6; i++) {
+  for(let i = 0; i < 6; i++) {
     cube.material[i] = matWon;
   }
   if (currentTxt) {
@@ -108,7 +112,7 @@ function setCubeWon () {
 
 // Getting the difference faces of the cube 
 function getFace(ax1) {
-  var ax = cube.worldToLocal(ax1).multiplyScalar(2);
+  let ax = cube.worldToLocal(ax1).multiplyScalar(2);
   ax.x = Math.round(ax.x);
   ax.y = Math.round(ax.y);
   ax.z = Math.round(ax.z);  
@@ -196,25 +200,25 @@ var numberOfLocked = 0;
 
 // Initialize the board
 function initBoard () {
-  for (var i = 0; i < size; i++) {
+  for (let i = 0; i < size; i++) {
     board[i] = new Array(size);
-    for (var j = 0; j < size; j++) {
-      var geometry = new THREE.BoxGeometry(1, .1, 1);
-      var cube = new THREE.Mesh(geometry, matFree);
+    for (let j = 0; j < size; j++) {
+      let geometry = new THREE.BoxGeometry(1, .1, 1);
+      let cube = new THREE.Mesh(geometry, matFree);
       cube.position.x = -1.5 + i;
       cube.position.y = -0.1;
       cube.position.z = -1.5 + j;
       board[i][j] = cube;
-      var geo = new THREE.EdgesGeometry(cube.geometry);
-      var mat = new THREE.LineBasicMaterial({color: 0x000000 });
+      let geo = new THREE.EdgesGeometry(cube.geometry);
+      let mat = new THREE.LineBasicMaterial({color: 0x000000 });
       mat.linewidth = 2;
-      var wireframe = new THREE.LineSegments(geo, mat);
+      let wireframe = new THREE.LineSegments(geo, mat);
       cube.add(wireframe);
       scene.add(cube);
     }
   }
 }
-
+ 
 initBoard();
 
 // Get Square
@@ -224,7 +228,7 @@ function getSquare(x, y) {
 
 // Select/Unselect a square
 function toggleSquare(x, y) {
-  var square = getSquare(x, y);
+  let square = getSquare(x, y);
   if (square.material == matLocked) {
     square.material = matFree;
     numberOfLocked -= 1;
@@ -241,9 +245,9 @@ function isSquareSelected(i, j) {
 
 // Find the square that is under the cube
 function getSquareUnderCube() {
-  for(var i = 0; i < 4; i++) {
-    for(var j = 0; j < 4; j++) {
-      var square = getSquare(i, j);
+  for(let i = 0; i < 4; i++) {
+    for(let j = 0; j < 4; j++) {
+      let square = getSquare(i, j);
       if ((square.position.x == cube.position.x) &&
           (square.position.z == cube.position.z)) {
         return square;
@@ -254,8 +258,8 @@ function getSquareUnderCube() {
 
 // Exchange the color of the down face of the cube with the square underneath
 function swapSquareCube() {
-  var face = getFaceDown();
-  var square = getSquareUnderCube();
+  let face = getFaceDown();
+  let square = getSquareUnderCube();
   if ((face == null) || (square == null)) {
     return;
   }
@@ -265,13 +269,13 @@ function swapSquareCube() {
 } 
 
 function resetCubeBoard() {
-  for(var i = 0; i < 6; i++) {
+  for(let i = 0; i < 6; i++) {
     cube.material[i] = matFree;
   }
   cube.visible = false;
   isWon = false;
-  for(var i = 0; i < 4; i++) {
-    for (var j = 0; j < 4; j++) {
+  for(let i = 0; i < 4; i++) {
+    for (let j = 0; j < 4; j++) {
       getSquare(i, j).material = matFree;
     }
   }
@@ -287,19 +291,20 @@ renderer.render(scene, camera);
 var rightTxt ;
 var leftTxt ;
 var upTxt ;
-var dowwnTxt ;
+var downTxt ;
 var voidTxt ;
+let currentTxt;
 var visibleCurrentTxt = true;
 var distTxt = new Array(20);
-var currentDistTxt;
+let currentDistTxt;
 var visibleCurrentDistTxt = true;
 
-var loader = new THREE.FontLoader();
-loader.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', function(font) {
-  var textmat = new THREE.MeshBasicMaterial({
+var loader = new FontLoader();
+loader.load('fonts/helvetiker_bold.typeface.json', function(font) {
+  let textmat = new THREE.MeshBasicMaterial({
     color: 'white'
   });
-  var geometry = new THREE.TextGeometry('', {
+  let geometry = new TextGeometry('', {
     font: font,
     size: 0.3,
     height: 0.,
@@ -315,7 +320,7 @@ loader.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', 
   voidTxt.position.x = 1;
   voidTxt.position.z = 2;
   voidTxt.position.y = -0.40;
-  geometry = new THREE.TextGeometry('left', {
+  geometry = new TextGeometry('left', {
     font: font,
     size: 0.3,
     height: 0.,
@@ -331,7 +336,7 @@ loader.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', 
   leftTxt.position.x = 1;
   leftTxt.position.z = 2;
   leftTxt.position.y = -0.34;
-  geometry = new THREE.TextGeometry('right', {
+  geometry = new TextGeometry('right', {
     font: font,
     size: 0.3,
     height: 0.,
@@ -347,7 +352,7 @@ loader.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', 
   rightTxt.position.x = 1;
   rightTxt.position.z = 2;
   rightTxt.position.y = -0.40;
-  geometry = new THREE.TextGeometry('up', {
+  geometry = new TextGeometry('up', {
     font: font,
     size: 0.3,
     height: 0.,
@@ -363,7 +368,7 @@ loader.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', 
   upTxt.position.x = 1;
   upTxt.position.z = 2;
   upTxt.position.y = -0.42;
-  geometry = new THREE.TextGeometry('down', {
+  geometry = new TextGeometry('down', {
     font: font,
     size: 0.3,
     height: 0.,
@@ -375,17 +380,19 @@ loader.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', 
     bevelSegments: 1
   });
   geometry.center();
+  console.log("geometry " + geometry);
+  console.log("textmat " + textmat);
   downTxt = new THREE.Mesh(geometry, textmat);
   downTxt.position.x = 1;
   downTxt.position.z = 2;
   downTxt.position.y = -0.35;
   currentTxt = voidTxt;
-  var dTxt = "";
-  for (var i = 0; i < 20; i++) {
+  let dTxt = "";
+  for (let i = 0; i < 20; i++) {
     if (i != 0) {
       dTxt = i + "";
     }
-    geometry = new THREE.TextGeometry(dTxt, {
+    geometry = new TextGeometry(dTxt, {
       font: font,
       size: 0.3,
       height: 0.,
@@ -397,7 +404,7 @@ loader.load('https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', 
       bevelSegments: 1
     });
     geometry.center();
-    var txt = new THREE.Mesh(geometry, textmat);
+    let txt = new THREE.Mesh(geometry, textmat);
     distTxt[i] = txt;
     txt.position.x = -1;
     txt.position.z = 2;
@@ -418,14 +425,14 @@ function binomial(m, n) {
 var numberbit = new Array(22);
 
 function printNumberbit () {
-  var res = "\n[";
-  for(var i = 0; i < 16; i++) {
+  let res = "\n[";
+  for(let i = 0; i < 16; i++) {
     res += numberbit[i] + ";";
     if (i % 4 == 3) {
       res += "\n"
     }
   }
-  for(var i = 16; i < 21; i++) {
+  for(let i = 16; i < 21; i++) {
     res += numberbit[i] + ";";
   }  
   res += numberbit[21] + "]";
@@ -444,35 +451,35 @@ function getCode(n, m) {
 
 // Get next move to solve the current position 
 function getNextMove() {
-  var xi = 1.5 + cube.position.x; 
-  var xj = 1.5 + cube.position.z;
+  let xi = 1.5 + cube.position.x; 
+  let xj = 1.5 + cube.position.z;
   if (debug) {
     console.log("initial xi = " + xi);
     console.log("initial xj = " + xj);
   }
-  var cubePos = new Array(6);
+  let cubePos = new Array(6);
   cubePos[0] = isFaceSelected(getFaceDown());
   cubePos[1] = isFaceSelected(getFaceWest());
   cubePos[2] = isFaceSelected(getFaceSouth());
   cubePos[3] = isFaceSelected(getFaceNorth());
   cubePos[4] = isFaceSelected(getFaceEast());
   cubePos[5] = isFaceSelected(getFaceUp());
-  var boardPos = new Array(4);
-  for (var i = 0; i < 4; i++) {
+  let boardPos = new Array(4);
+  for (let i = 0; i < 4; i++) {
     boardPos[i] = new Array(4);
   }
-  for (var i = 0; i < 4; i++) {
-    for (var j = 0; j < 4; j++) {
+  for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < 4; j++) {
       boardPos[i][j] = isSquareSelected(i, j);
     }
   }
   // The position is in the lower part of the board, we need to do a 180 degre
-  var swap = (2 <= xj);
+  let swap = (2 <= xj);
   if (debug) {
     console.log("swap = " + swap);
   }
-  var kb = true;
-  var k = 0;
+  let kb = true;
+  let k = 0;
   if (swap) {
     xi = 3 - xi;
     xj = 3 - xj;
@@ -480,8 +487,8 @@ function getNextMove() {
       console.log("swap xi = " + xi);
       console.log("swap xj = " + xj);
     }
-    for (var i = 0; i < 4; i++) {
-      for (var j = 0; j < 2; j++) {
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 2; j++) {
         kb = boardPos[i][j];
         boardPos[i][j] = boardPos[3 - i][3 - j];
         boardPos[3 - i][3 - j] = kb;
@@ -495,7 +502,7 @@ function getNextMove() {
     cubePos[3] = kb;
   }
   // The position is in the right part of the board, we need to do a 90 degre
-  var turn = (2 <= xi);
+  let turn = (2 <= xi);
   if (turn) {
     k = xi;
     xi = xj;
@@ -504,8 +511,8 @@ function getNextMove() {
       console.log("turn xi = " + xi);
       console.log("turn xj = " + xj);
     }
-    for (var i = 0; i < 2; i++) {
-      for (var j = i; j < 3 - i; j++) {
+    for (let i = 0; i < 2; i++) {
+      for (let j = i; j < 3 - i; j++) {
         kb = boardPos[i + j][i];
         boardPos[i + j][i] = boardPos[3 - i][i + j];
         boardPos[3 - i][i + j] = boardPos[3 - (i + j)][3 - i];
@@ -524,12 +531,12 @@ function getNextMove() {
     console.log("turn=" + turn);
   }
   k = 0;
-  for(var i = 0; i < 4; i++) {
-    for (var j = 0 ; j < 4; j++) {
+  for(let i = 0; i < 4; i++) {
+    for (let j = 0 ; j < 4; j++) {
       numberbit[k++] = boardPos[j][i];
     }
   }
-  for(var i = 0; i < 6; i++) {
+  for(let i = 0; i < 6; i++) {
     numberbit[k++] = cubePos[5 - i];
   }
   if (debug) {
@@ -537,9 +544,8 @@ function getNextMove() {
     console.log("xj = " + xj);
     console.log("numberbits = " + printNumberbit());
   }
-  var code = xi + 2 * xj + 4 * getCode(0, 6);
-  console.log("getNextMove code " + xi + " "  + xj + " " + getCode(0, 6));
-  var val = Number((table >> (2n * BigInt(code))) %4n);
+  let code = xi + 2 * xj + 4 * getCode(0, 6);
+  let val = Number((table >> (2n * BigInt(code))) %4n);
   if (debug) {
     console.log("initial val = " + val);
   }
@@ -597,32 +603,32 @@ function getNextMove() {
 
 // Get next move to solve the current position 
 function getDistanceToSolution() {
-  var xi = 1.5 + cube.position.x; 
-  var xj = 1.5 + cube.position.z;
+  let xi = 1.5 + cube.position.x; 
+  let xj = 1.5 + cube.position.z;
   if (debug) {
     console.log("initial xi = " + xi);
     console.log("initial xj = " + xj);
   }
-  var cubePos = new Array(6);
+  let cubePos = new Array(6);
   cubePos[0] = isFaceSelected(getFaceDown());
   cubePos[1] = isFaceSelected(getFaceWest());
   cubePos[2] = isFaceSelected(getFaceSouth());
   cubePos[3] = isFaceSelected(getFaceNorth());
   cubePos[4] = isFaceSelected(getFaceEast());
   cubePos[5] = isFaceSelected(getFaceUp());
-  var boardPos = new Array(4);
-  for (var i = 0; i < 4; i++) {
+  let boardPos = new Array(4);
+  for (let i = 0; i < 4; i++) {
     boardPos[i] = new Array(4);
   }
-  for (var i = 0; i < 4; i++) {
-    for (var j = 0; j < 4; j++) {
+  for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < 4; j++) {
       boardPos[i][j] = isSquareSelected(i, j);
     }
   }
-  var distance = 0;
+  let distance = 0;
   while (distance < 20) {
-    var isWon = true;
-    for (var i = 0; i < 6; i++) {
+    let isWon = true;
+    for (let i = 0; i < 6; i++) {
       if (!cubePos[i]) {
         isWon = false;
       }
@@ -639,12 +645,12 @@ function getDistanceToSolution() {
     }
     distance++;
     // The position is in the lower part of the board, we need to do a 180 degre
-    var swap = (2 <= xj);
+    let swap = (2 <= xj);
     if (debug) {
       console.log("swap = " + swap);
     }
-    var kb = true;
-    var k = 0;
+    let kb = true;
+    let k = 0;
     if (swap) {
       xi = 3 - xi;
       xj = 3 - xj;
@@ -652,8 +658,8 @@ function getDistanceToSolution() {
         console.log("swap xi = " + xi);
         console.log("swap xj = " + xj);
       }
-      for (var i = 0; i < 4; i++) {
-        for (var j = 0; j < 2; j++) {
+      for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 2; j++) {
          kb = boardPos[i][j];
          boardPos[i][j] = boardPos[3 - i][3 - j];
          boardPos[3 - i][3 - j] = kb;
@@ -667,7 +673,7 @@ function getDistanceToSolution() {
       cubePos[3] = kb;
     }
     // The position is in the right part of the board, we need to do a 90 degre
-    var turn = (2 <= xi);
+    let turn = (2 <= xi);
     if (turn) {
       k = xi;
       xi = xj;
@@ -676,8 +682,8 @@ function getDistanceToSolution() {
         console.log("turn xi = " + xi);
         console.log("turn xj = " + xj);
       }
-      for (var i = 0; i < 2; i++) {
-        for (var j = i; j < 3 - i; j++) {
+      for (let i = 0; i < 2; i++) {
+        for (let j = i; j < 3 - i; j++) {
           kb = boardPos[i + j][i];
           boardPos[i + j][i] = boardPos[3 - i][i + j];
           boardPos[3 - i][i + j] = boardPos[3 - (i + j)][3 - i];
@@ -696,12 +702,12 @@ function getDistanceToSolution() {
       console.log("turn=" + turn);
     }
     k = 0;
-    for(var i = 0; i < 4; i++) {
-      for (var j = 0 ; j < 4; j++) {
+    for(let i = 0; i < 4; i++) {
+      for (let j = 0 ; j < 4; j++) {
         numberbit[k++] = boardPos[j][i];
       }
     }
-    for(var i = 0; i < 6; i++) {
+    for(let i = 0; i < 6; i++) {
       numberbit[k++] = cubePos[5 - i];
     }
     if (debug) {
@@ -709,22 +715,19 @@ function getDistanceToSolution() {
       console.log("xj = " + xj);
       console.log("numberbits = " + printNumberbit());
     }
-    var code = xi + 2 * xj + 4 * getCode(0, 6);
-    console.log("code " + distance + 
-" " + xi + " "  + xj + getCode(0, 6));
-
-    var val = Number((table >> (2n * BigInt(code))) %4n);
+    let code = xi + 2 * xj + 4 * getCode(0, 6);
+    let val = Number((table >> (2n * BigInt(code))) %4n);
     if (debug) {
       console.log("initial val = " + val);
     }
     if (val == 0) {
       // cube move to up
-      var c0 = cubePos[0];
-      var c1 = cubePos[1];
-      var c2 = cubePos[2];
-      var c3 = cubePos[3];
-      var c4 = cubePos[4];
-      var c5 = cubePos[5];
+      let c0 = cubePos[0];
+      let c1 = cubePos[1];
+      let c2 = cubePos[2];
+      let c3 = cubePos[3];
+      let c4 = cubePos[4];
+      let c5 = cubePos[5];
       cubePos[0] = c3;
       cubePos[1] = c1;
       cubePos[2] = c0;
@@ -732,17 +735,17 @@ function getDistanceToSolution() {
       cubePos[4] = c4;
       cubePos[5] = c2;
       xj -= 1;
-      var val = boardPos[xi][xj];
+      let val = boardPos[xi][xj];
       boardPos[xi][xj] = cubePos[0];
       cubePos[0] = val;
     } else if (val == 1) {
       // cube move to right
-      var c0 = cubePos[0];
-      var c1 = cubePos[1];
-      var c2 = cubePos[2];
-      var c3 = cubePos[3];
-      var c4 = cubePos[4];
-      var c5 = cubePos[5];
+      let c0 = cubePos[0];
+      let c1 = cubePos[1];
+      let c2 = cubePos[2];
+      let c3 = cubePos[3];
+      let c4 = cubePos[4];
+      let c5 = cubePos[5];
       cubePos[0] = c4;
       cubePos[1] = c0;
       cubePos[2] = c2;
@@ -750,17 +753,17 @@ function getDistanceToSolution() {
       cubePos[4] = c5;
       cubePos[5] = c1;
       xi += 1;
-      var val = boardPos[xi][xj];
+      let val = boardPos[xi][xj];
       boardPos[xi][xj] = cubePos[0];
       cubePos[0] = val;
     } else if (val == 2) {
       // cube move to down
-      var c0 = cubePos[0];
-      var c1 = cubePos[1];
-      var c2 = cubePos[2];
-      var c3 = cubePos[3];
-      var c4 = cubePos[4];
-      var c5 = cubePos[5];
+      let c0 = cubePos[0];
+      let c1 = cubePos[1];
+      let c2 = cubePos[2];
+      let c3 = cubePos[3];
+      let c4 = cubePos[4];
+      let c5 = cubePos[5];
       cubePos[0] = c2;
       cubePos[1] = c1;
       cubePos[2] = c5;
@@ -768,17 +771,17 @@ function getDistanceToSolution() {
       cubePos[4] = c4;
       cubePos[5] = c3;
       xj += 1;
-      var val = boardPos[xi][xj];
+      let val = boardPos[xi][xj];
       boardPos[xi][xj] = cubePos[0];
       cubePos[0] = val;
     } else if (val == 3) {
       // cube move to left
-      var c0 = cubePos[0];
-      var c1 = cubePos[1];
-      var c2 = cubePos[2];
-      var c3 = cubePos[3];
-      var c4 = cubePos[4];
-      var c5 = cubePos[5];
+      let c0 = cubePos[0];
+      let c1 = cubePos[1];
+      let c2 = cubePos[2];
+      let c3 = cubePos[3];
+      let c4 = cubePos[4];
+      let c5 = cubePos[5];
       cubePos[0] = c1;
       cubePos[1] = c5;
       cubePos[2] = c2;
@@ -786,7 +789,7 @@ function getDistanceToSolution() {
       cubePos[4] = c0;
       cubePos[5] = c4;
       xi -= 1;
-      var val = boardPos[xi][xj];
+      let val = boardPos[xi][xj];
       boardPos[xi][xj] = cubePos[0];
       cubePos[0] = val;
     }
@@ -883,8 +886,8 @@ var gz = cube.position.z;
 // animation loop
 function animate () {
   requestAnimationFrame(animate);
-  var x = cube.position.x;
-  var z = cube.position.z;
+  let x = cube.position.x;
+  let z = cube.position.z;
   if (((gx != x) || (gz != z)) && !isWon) {
     if (gx < x) {
       moveXN();
@@ -906,10 +909,11 @@ var raycaster = new THREE.Raycaster();
 // get the square that is touched by the ray
 function getSelectedSquare (raycaster) {
   let intersects = raycaster.intersectObjects(scene.children);
-  for (var z = 0; z < intersects.length; z++) {
+  let selectedPiece;
+  for (let z = 0; z < intersects.length; z++) {
         selectedPiece = intersects[z].object;
-        for (var i = 0; i < size; i++) {
-            for (var j = 0; j < size; j++) {
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
                 if (selectedPiece == board[i][j]) {
                   return {x : i, y : j};
                 }
@@ -922,7 +926,8 @@ function getSelectedSquare (raycaster) {
 // get the square that is touched by the ray
 function clickOnBlackBoard (raycaster) {
   let intersects = raycaster.intersectObjects(scene.children);
-  for (var z = 0; z < intersects.length; z++) {
+  let selectedPiece;
+  for (let z = 0; z < intersects.length; z++) {
         selectedPiece = intersects[z].object;
         if (selectedPiece == bbcube) {
           return true;
@@ -956,7 +961,7 @@ function onDocumentMouseDown(event) {
   mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
   mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
   raycaster.setFromCamera(mouse, camera);
-  var bxy = getSelectedSquare(raycaster);
+  let bxy = getSelectedSquare(raycaster);
   if (bxy != null) {
     var square = getSquare(bxy.x, bxy.y);
     if (cube.visible == true) {
@@ -1017,8 +1022,8 @@ window.addEventListener(
   'resize',
   
     function () {
-      var width = window.innerWidth;
-	    var height = window.innerHeight;
+        let width = window.innerWidth;
+	    let height = window.innerHeight;
 	    renderer.setSize( width, height );
 	    camera.aspect = width / height;
 	    camera.updateProjectionMatrix();
