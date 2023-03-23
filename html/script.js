@@ -6,7 +6,7 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 var debug = false;
 
 const CANVAS_WIDTH = 600;
-const CANVAS_HEIGHT = 300;
+const CANVAS_HEIGHT = 365;
 
 const container = document.getElementById( 'canvas' );
 
