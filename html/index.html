@@ -4,20 +4,53 @@
 		<title>Puzzle Cube</title>
 		<style>
 			body { margin: 0; }
-		</style>
+      #canvas {
+        background-color: #000;
+        width: 600px;
+        height: 300px;
+        position: static; /* fixed or static */
+        margin: 50px;
+      }	
+	  </style>
+    <script async
+      src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js">
+    </script>
+
+    <script type="importmap">
+      {
+        "imports": {
+        "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
+        }
+      }
+    </script>
+    <script defer type="module" src="./script.js"></script>
 	</head>
-<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+  <body>
+    <h1>How does it work</h1>
+    <ul>
+      <li>
+        To enter a starting position, click on the square you want to turn blue, 
+        after entering the 6 squares, chose the initial position of the cube;
+      </li>
+      <li>
+        To move the cube, just click on the square you are aiming at;
+      </li>
+      <li>
+        The black area gives some information: the number of moves that have
+        been played so far, one optimal next move and the minimal number of
+        moves that are necessary to complete the challenge.
+      </li>
+      <li> 
+        Clicking on the number of moves performs an undo.
+      </li>
+      <li>
+        Clicking on the black area modifies the amount of information that is 
+        provided.
+      </li>
+    </ul> 
 
-<script type="importmap">
-  {
-    "imports": {
-      "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
-      "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
-    }
-  }
-</script>
-
-	<body>
-        <script type="module" src="./script.js"></script>
-	</body>
+    <p></p>
+    <div id="canvas"></div>
+  </body>
 </html>

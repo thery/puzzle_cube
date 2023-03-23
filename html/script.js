@@ -5,6 +5,11 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 //debug 
 var debug = false;
 
+const CANVAS_WIDTH = 600;
+const CANVAS_HEIGHT = 300;
+
+const container = document.getElementById( 'canvas' );
+
 //create the scene
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('gray');
@@ -12,7 +17,7 @@ scene.background = new THREE.Color('gray');
 //create the camera
 const camera = new THREE.PerspectiveCamera(
   90,
-  window.innerWidth / window.innerHeight,
+  CANVAS_WIDTH / CANVAS_HEIGHT,
   0.1,
   10
 );
@@ -301,8 +306,9 @@ function resetCubeBoard() {
 
 //create renderer
 var renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setSize(CANVAS_WIDTH, CANVAS_HEIGHT);
 renderer.render(scene, camera);
+container.appendChild( renderer.domElement );
 
 var nmove;
 var nmoveTxt ;
@@ -1045,8 +1051,20 @@ function onDocumentMouseDown(event) {
     renderer.render(scene, camera);
     return;
   }
-  mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-  mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+  function getOffset(element) {
+    var ex = 0, ey = 0;
+    while (element.offsetParent) {
+        ex += element.offsetLeft;
+        ey += element.offsetTop;
+        element = element.offsetParent;
+    }
+    return {x: ex, y:ey};
+  }
+
+  // For the following method to work correctly, set the canvas position *static*; margin > 0 and padding > 0 are OK
+    var off = getOffset(renderer.domElement);
+    mouse.x = ( ( event.pageX - off.x ) / renderer.domElement.clientWidth ) * 2 - 1;
+    mouse.y = - ( ( event.pageY - off.y ) / renderer.domElement.clientHeight ) * 2 + 1;
   raycaster.setFromCamera(mouse, camera);
   let bxy = getSelectedSquare(raycaster);
   if (bxy != null) {
@@ -1113,22 +1131,9 @@ function onDocumentMouseDown(event) {
   }
 }
 
-document.body.appendChild(renderer.domElement);
-window.addEventListener('click', onDocumentMouseDown, false);
+renderer.domElement.addEventListener('click', onDocumentMouseDown, false);
 
 	
-window.addEventListener(
-  'resize',
-  
-    function () {
-        let width = window.innerWidth;
-	    let height = window.innerHeight;
-	    renderer.setSize( width, height );
-	    camera.aspect = width / height;
-	    camera.updateProjectionMatrix();
-      renderer.render(scene, camera);
-    }
-  );
 
 animate();
 
