@@ -1,14 +1,10 @@
 import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 //debug 
 var debug = false;
-
-const CANVAS_WIDTH = 600;
-const CANVAS_HEIGHT = 365;
-
-const container = document.getElementById( 'canvas' );
 
 //create the scene
 const scene = new THREE.Scene();
@@ -17,7 +13,7 @@ scene.background = new THREE.Color('gray');
 //create the camera
 const camera = new THREE.PerspectiveCamera(
   90,
-  CANVAS_WIDTH / CANVAS_HEIGHT,
+  window.innerWidth / window.innerHeight,
   0.1,
   10
 );
@@ -308,9 +304,14 @@ function resetCubeBoard() {
 
 //create renderer
 var renderer = new THREE.WebGLRenderer({antialias : true});
-renderer.setSize(CANVAS_WIDTH, CANVAS_HEIGHT);
 renderer.render(scene, camera);
-container.appendChild( renderer.domElement );
+renderer.setSize(window.innerWidth, window.innerHeight)
+document.body.appendChild(renderer.domElement)
+const controls = new OrbitControls(camera, renderer.domElement)
+controls.enablePan = true;
+controls.enableRotate = true;
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
 
 var nmove;
 var nmoveTxt ;
@@ -1134,8 +1135,7 @@ function onDocumentMouseDown(event) {
 }
 
 renderer.domElement.addEventListener('click', onDocumentMouseDown, false);
-
-	
+renderer.render(scene, camera);
 
 animate();
 
