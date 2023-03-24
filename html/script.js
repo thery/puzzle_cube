@@ -22,9 +22,11 @@ const camera = new THREE.PerspectiveCamera(
   10
 );
 camera.position.z = 7;
-camera.position.y = 2;
+camera.position.y = 4;
 camera.position.x = 0;
-camera.zoom = 1.9;
+camera.zoom = 3;
+const look = new THREE.Vector3( 0, 0, 0 );
+camera.lookAt(look);
 camera.updateProjectionMatrix();
 // Our two colours
 const colorFree   = new THREE.Color('white');
@@ -49,26 +51,26 @@ const axisPZ = new THREE.Vector3( 0, 0, 1);
 const axisNZ = new THREE.Vector3( 0, 0,-1);
 
 // create the move board 
-const mbgeometry = new THREE.BoxGeometry(0.6, 0.45, 0.1);
+const mbgeometry = new THREE.BoxGeometry(0.9, 0.90, 0.1);
 const mbcube = new THREE.Mesh(mbgeometry, matMoveBoard);
 
 // The initial position
 mbcube.position.z = 1.7;
-mbcube.position.y = -0.5;
-mbcube.position.x = -1.1;
+mbcube.position.y = -0.7;
+mbcube.position.x = -1.5;
 
 //add the main blackboard to scene
 scene.add(mbcube);
 
 // create the black board 
-const bbgeometry = new THREE.BoxGeometry(4, 0.5, 0.1);
+const bbgeometry = new THREE.BoxGeometry(4, 1, 0.1);
 const bbcube = new THREE.Mesh(bbgeometry, matBlackBoard);
 
 // create the main cube
 const geometry = new THREE.BoxGeometry(1, 1, 1);
 // The initial position
 bbcube.position.z = 1.7;
-bbcube.position.y = -0.5;
+bbcube.position.y = -0.7;
 bbcube.position.x = 0;
 
 //add the main blackboard to scene
@@ -305,7 +307,7 @@ function resetCubeBoard() {
 
 
 //create renderer
-var renderer = new THREE.WebGLRenderer();
+var renderer = new THREE.WebGLRenderer({antialias : true});
 renderer.setSize(CANVAS_WIDTH, CANVAS_HEIGHT);
 renderer.render(scene, camera);
 container.appendChild( renderer.domElement );
@@ -334,7 +336,7 @@ loader.load('fonts/helvetiker_bold.typeface.json', function(font) {
   xfont = font;
   let geometry = new TextGeometry('', {
     font: font,
-    size: 0.3,
+    size: 0.5,
     height: 0.,
     curveSegments: 1,
     bevelEnabled: true,
@@ -347,10 +349,10 @@ loader.load('fonts/helvetiker_bold.typeface.json', function(font) {
   voidTxt = new THREE.Mesh(geometry, textmat);
   voidTxt.position.x = 0;
   voidTxt.position.z = 2;
-  voidTxt.position.y = -0.40;
+  voidTxt.position.y = -0.50;
   geometry = new TextGeometry('left', {
     font: font,
-    size: 0.3,
+    size: 0.5,
     height: 0.,
     curveSegments: 1,
     bevelEnabled: true,
@@ -363,10 +365,10 @@ loader.load('fonts/helvetiker_bold.typeface.json', function(font) {
   leftTxt = new THREE.Mesh(geometry, textmat);
   leftTxt.position.x = 0;
   leftTxt.position.z = 2;
-  leftTxt.position.y = -0.34;
+  leftTxt.position.y = -0.44;
   geometry = new TextGeometry('right', {
     font: font,
-    size: 0.3,
+    size: 0.5,
     height: 0.,
     curveSegments: 1,
     bevelEnabled: true,
@@ -379,10 +381,10 @@ loader.load('fonts/helvetiker_bold.typeface.json', function(font) {
   rightTxt = new THREE.Mesh(geometry, textmat);
   rightTxt.position.x = 0;
   rightTxt.position.z = 2;
-  rightTxt.position.y = -0.40;
+  rightTxt.position.y = -0.50;
   geometry = new TextGeometry('up', {
     font: font,
-    size: 0.3,
+    size: 0.5,
     height: 0.,
     curveSegments: 1,
     bevelEnabled: true,
@@ -395,10 +397,10 @@ loader.load('fonts/helvetiker_bold.typeface.json', function(font) {
   upTxt = new THREE.Mesh(geometry, textmat);
   upTxt.position.x = 0;
   upTxt.position.z = 2;
-  upTxt.position.y = -0.42;
+  upTxt.position.y = -0.52;
   geometry = new TextGeometry('down', {
     font: font,
-    size: 0.3,
+    size: 0.5,
     height: 0.,
     curveSegments: 1,
     bevelEnabled: true,
@@ -411,7 +413,7 @@ loader.load('fonts/helvetiker_bold.typeface.json', function(font) {
   downTxt = new THREE.Mesh(geometry, textmat);
   downTxt.position.x = 0;
   downTxt.position.z = 2;
-  downTxt.position.y = -0.35;
+  downTxt.position.y = -0.45;
   currentTxt = voidTxt;
   let dTxt = "";
   for (let i = 0; i < 20; i++) {
@@ -420,7 +422,7 @@ loader.load('fonts/helvetiker_bold.typeface.json', function(font) {
     }
     geometry = new TextGeometry(dTxt, {
       font: font,
-      size: 0.3,
+      size: 0.5,
       height: 0.,
       curveSegments: 1,
       bevelEnabled: true,
@@ -432,9 +434,9 @@ loader.load('fonts/helvetiker_bold.typeface.json', function(font) {
     geometry.center();
     let txt = new THREE.Mesh(geometry, textmat);
     distTxt[i] = txt;
-    txt.position.x = 1;
+    txt.position.x = 1.5;
     txt.position.z = 2;
-    txt.position.y = -0.35;
+    txt.position.y = -0.45;
   }
 });
 
@@ -452,7 +454,7 @@ function addNMove() {
   });
   let geometry = new TextGeometry("" + nmove, {
     font: xfont,
-    size: 0.3,
+    size: 0.5,
     height: 0.,
     curveSegments: 1,
     bevelEnabled: true,
@@ -463,9 +465,9 @@ function addNMove() {
   });
   geometry.center();
   nmoveTxt = new THREE.Mesh(geometry, textmat);
-  nmoveTxt.position.x = -1;
+  nmoveTxt.position.x = -1.5;
   nmoveTxt.position.z = 2;
-  nmoveTxt.position.y = -0.35;
+  nmoveTxt.position.y = -0.45;
   scene.add(nmoveTxt);
 }
 
@@ -854,8 +856,8 @@ function getDistanceToSolution() {
 }
 
 // Animation speed
-var rx = 4 * 1 / 100;
-var rr = 4 * Math.PI / 200;
+var rx = 10 * 1 / 100;
+var rr = 10 * Math.PI / 200;
 
 // Keep the current rotation during animation
 var rot = 0;
