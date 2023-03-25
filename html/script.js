@@ -851,8 +851,8 @@ function getDistanceToSolution() {
 }
 
 // Animation speed
-var rx = 4 * 1 / 100;
-var rr = 4 * Math.PI / 200;
+var rx = 5 * 1 / 100;
+var rr = 5 * Math.PI / 200;
 
 // Keep the current rotation during animation
 var rot = 0;
