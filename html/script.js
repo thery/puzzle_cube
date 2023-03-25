@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 //debug 
 var debug = false;
@@ -307,11 +306,6 @@ var renderer = new THREE.WebGLRenderer({antialias : true});
 renderer.render(scene, camera);
 renderer.setSize(window.innerWidth, window.innerHeight)
 document.body.appendChild(renderer.domElement)
-const controls = new OrbitControls(camera, renderer.domElement)
-controls.enablePan = true;
-controls.enableRotate = true;
-controls.enableDamping = true;
-controls.dampingFactor = 0.05;
 
 var nmove;
 var nmoveTxt ;
