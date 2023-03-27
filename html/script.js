@@ -580,9 +580,30 @@ function getNextMove() {
     cubePos[4] = cubePos[2];
     cubePos[2] = kb;
   }
+  // The position is (0,1), we need to symmetry to get (1, 0)
+  let sym = (xi == 0) && (xj == 1);
+  if (sym) {
+    xi = 1;
+    xj = 0;
+    for (let j = 0; j < 4; j++) {
+      for (let i = j; i < 4; i++) {
+        kb = boardPos[i][j];
+        boardPos[i][j] = boardPos[j][i];
+        boardPos[j][i] = kb;
+      }
+    }
+    kb = cubePos[1];
+    cubePos[1] = cubePos[3];
+    cubePos[3] = kb;
+    kb = cubePos[4];
+    cubePos[4] = cubePos[2];
+    cubePos[2] = kb; 
+  }
+  // The position is in the lower part of the board, we need to do a 180 degre
   if (debug) {
     console.log("swap=" + swap);
     console.log("turn=" + turn);
+    console.log("sym=" + sym);
   }
   k = 0;
   for(let i = 0; i < 4; i++) {
@@ -602,6 +623,12 @@ function getNextMove() {
   let val = Number((table >> (2n * BigInt(code))) %4n);
   if (debug) {
     console.log("initial val = " + val);
+  }
+  if (sym) {
+    val = 3 - val;
+  }
+  if (debug) {
+    console.log("sym val = " + val);
   }
   if (turn) {
     val = (val + 1) % 4;
@@ -751,9 +778,29 @@ function getDistanceToSolution() {
       cubePos[4] = cubePos[2];
       cubePos[2] = kb;
     }
+    // The position is (0,1), we need to symmetry to get (1, 0)
+    let sym = (xi == 0) && (xj == 1);
+    if (sym) {
+      xi = 1;
+      xj = 0;
+      for (let j = 0; j < 4; j++) {
+        for (let i = j; i < 4; i++) {
+          kb = boardPos[i][j];
+          boardPos[i][j] = boardPos[j][i];
+          boardPos[j][i] = kb;
+        }
+      }
+      kb = cubePos[1];
+      cubePos[1] = cubePos[3];
+      cubePos[3] = kb;
+      kb = cubePos[4];
+      cubePos[4] = cubePos[2];
+      cubePos[2] = kb; 
+    }
     if (debug) {
       console.log("swap=" + swap);
       console.log("turn=" + turn);
+      console.log("sym=" + sym);
     }
     k = 0;
     for(let i = 0; i < 4; i++) {
